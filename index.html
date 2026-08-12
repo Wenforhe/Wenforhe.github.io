@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="《纸上田野》——一款关于文科社会学研究生课题组日常的原创像素叙事游戏 Demo。"
+    />
+    <meta name="theme-color" content="#181410" />
+    <title>纸上田野 · 组会生存志</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23e8a33b'/%3E%3Cpath d='M15 13h34v38H15zM20 20h24M20 31h24M20 42h24M27 17v29M38 17v29' fill='none' stroke='%23181410' stroke-width='4'/%3E%3C/svg%3E" />
+    <link rel="preload" href="assets/seminar-room.jpg" as="image" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+
+    <main class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="#game" aria-label="回到游戏">
+          <span class="brand-mark" aria-hidden="true">田</span>
+          <span>
+            <strong>纸上田野</strong>
+            <small>GRADUATE FIELDNOTES</small>
+          </span>
+        </a>
+        <div class="header-actions">
+          <button class="text-button" id="soundButton" type="button" aria-pressed="true">
+            <span aria-hidden="true">♪</span> 环境音：开
+          </button>
+          <button class="text-button dossier-button" id="castButton" type="button"><span aria-hidden="true">▣</span> 课题组档案</button>
+          <button class="text-button" id="helpButton" type="button">玩法说明</button>
+        </div>
+      </header>
+
+      <section class="game-card" id="game" aria-label="纸上田野游戏 Demo">
+        <div class="game-stage">
+          <canvas
+            id="gameCanvas"
+            width="960"
+            height="576"
+            tabindex="0"
+            aria-label="组会室游戏区域。使用方向键或 WASD 移动，E 键互动。"
+          ></canvas>
+
+          <div class="hud" id="hud" aria-live="polite">
+            <div class="day-card">
+              <span class="day-label">周 三</span>
+              <strong id="clockText">15:40</strong>
+              <span class="weather"><i aria-hidden="true"></i> 小雨</span>
+            </div>
+            <div class="stat-strip">
+              <div class="stat" title="支撑你继续思考的灵感">
+                <span>✦ 灵感</span>
+                <div class="meter"><i id="insightMeter"></i></div>
+                <b id="insightText">38</b>
+              </div>
+              <div class="stat" title="行动和社交会消耗精力">
+                <span>♥ 精力</span>
+                <div class="meter energy"><i id="energyMeter"></i></div>
+                <b id="energyText">72</b>
+              </div>
+              <div class="stat" title="课题组成员对你方案的认可">
+                <span>◆ 共识</span>
+                <div class="meter trust"><i id="trustMeter"></i></div>
+                <b id="trustText">20</b>
+              </div>
+            </div>
+          </div>
+
+          <aside class="quest-card" aria-labelledby="questTitle">
+            <span class="eyebrow">本周主线</span>
+            <h2 id="questTitle">方向危机：谁在替系统运转？</h2>
+            <p id="questHint">长聘材料今晚截止。先听见四种位置上的声音。</p>
+            <div class="quest-progress">
+              <i id="questProgress"></i>
+            </div>
+            <ul id="questList">
+              <li data-clue="mentor"><span></span> 问周老师为什么停下了</li>
+              <li data-clue="senior1"><span></span> 读许大师兄的田野笔记</li>
+              <li data-clue="senior2"><span></span> 看邵二师兄的项目报价</li>
+              <li data-clue="alumna"><span></span> 接通小杨师姐的视频</li>
+            </ul>
+            <button class="concept-count" id="conceptButton" type="button">概念卡 <b id="conceptCount">1 / 7</b></button>
+          </aside>
+
+          <div class="interaction-prompt" id="interactionPrompt" hidden>
+            <kbd>E</kbd>
+            <span id="interactionLabel">交谈</span>
+          </div>
+
+          <section class="dialogue-box" id="dialogueBox" aria-live="assertive" hidden>
+            <div class="portrait" id="speakerPortrait" aria-hidden="true">周</div>
+            <div class="dialogue-copy">
+              <span class="speaker-name" id="speakerName">周老师</span>
+              <p id="dialogueText"></p>
+              <div class="choices" id="dialogueChoices"></div>
+            </div>
+            <button class="dialogue-next" id="dialogueNext" type="button">
+              继续 <span aria-hidden="true">▾</span>
+            </button>
+          </section>
+
+          <div class="toast" id="toast" role="status" hidden></div>
+
+          <div class="mobile-controls" aria-label="触屏操作">
+            <div class="dpad">
+              <button data-key="ArrowUp" aria-label="向上">▲</button>
+              <button data-key="ArrowLeft" aria-label="向左">◀</button>
+              <button data-key="ArrowDown" aria-label="向下">▼</button>
+              <button data-key="ArrowRight" aria-label="向右">▶</button>
+            </div>
+            <button class="action-button" data-action="interact" aria-label="互动">E<small>互动</small></button>
+          </div>
+        </div>
+
+        <footer class="game-footer">
+          <p><span class="status-dot"></span> CHAPTER 01 · 新人的隐性课程</p>
+          <p class="keyboard-hint"><kbd>WASD</kbd> 或 <kbd>方向键</kbd> 移动 · <kbd>E</kbd> / <kbd>空格</kbd> 互动</p>
+          <button id="resetButton" class="reset-button" type="button">重新开始这一天</button>
+        </footer>
+      </section>
+
+      <section class="about-strip">
+        <p>一个社会学课题组，也是一小块等待被理解的社会。</p>
+        <div>
+          <span>原创像素叙事 RPG</span>
+          <span>社会学研究生群像</span>
+          <span>浏览器即开即玩</span>
+        </div>
+      </section>
+    </main>
+
+    <section class="title-screen" id="titleScreen" aria-labelledby="gameTitle">
+      <div class="title-shade"></div>
+      <div class="title-content">
+        <span class="chapter-kicker">五个人 · 一间组会室 · 一套没人明说的规则</span>
+        <h1 id="gameTitle"><span>纸上</span>田野</h1>
+        <p>你以第一名进入课题组。第一项任务却是把二十三张报销单按发票号码重新排序。</p>
+        <button class="primary-button" id="startButton" type="button">
+          开始周三 <span aria-hidden="true">→</span>
+        </button>
+        <button class="secondary-button" id="titleHelpButton" type="button">先看玩法</button>
+      </div>
+      <p class="art-credit">原创概念场景 · Demo v0.2</p>
+    </section>
+
+    <dialog id="helpDialog" class="help-dialog">
+      <form method="dialog">
+        <button class="close-button" value="close" aria-label="关闭">×</button>
+        <span class="eyebrow">田野手册 · 第 1 页</span>
+        <h2>今天的目标，是带着一个更好的问题离开组会。</h2>
+        <div class="help-grid">
+          <div><kbd>WASD</kbd><strong>在组会室里移动</strong><p>也可以使用方向键或屏幕方向按钮。</p></div>
+          <div><kbd>E</kbd><strong>与人和物互动</strong><p>靠近带有感叹号的角色，听取不同方法论意见。</p></div>
+          <div><span class="help-icon">✦</span><strong>留意三项状态</strong><p>灵感、精力与共识会随选择变化，并影响组会结局。</p></div>
+        </div>
+        <button class="primary-button compact" value="close">知道了</button>
+      </form>
+    </dialog>
+
+    <dialog id="castDialog" class="cast-dialog">
+      <div class="cast-dialog-head">
+        <div>
+          <span class="eyebrow">课题组档案 · 内部版本</span>
+          <h2>平台、青年与日常生活研究组</h2>
+          <p>资金充足，方向动摇。每个人都在用自己的方式维持它。</p>
+        </div>
+        <button class="close-button" id="castCloseButton" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="cast-lineup" role="img" aria-label="周维青、许望川、邵亦辰、沈砚和杨知夏五位核心人物的像素群像"></div>
+      <div class="dossier-tabs" role="tablist" aria-label="档案类别">
+        <button class="active" type="button" role="tab" aria-selected="true" data-dossier-tab="cast">核心人物</button>
+        <button type="button" role="tab" aria-selected="false" data-dossier-tab="relations">关系与配角</button>
+        <button type="button" role="tab" aria-selected="false" data-dossier-tab="concepts">社会学概念 <b id="dialogConceptCount">1/7</b></button>
+      </div>
+      <div class="dossier-panel" id="dossierPanel"></div>
+    </dialog>
+
+    <dialog id="endingDialog" class="ending-dialog">
+      <div class="ending-art" aria-hidden="true"><span>✦</span></div>
+      <div class="ending-content">
+        <span class="eyebrow">Demo 完成</span>
+        <h2 id="endingTitle">你的问题，开始长出根系。</h2>
+        <p id="endingText"></p>
+        <div class="ending-stats" id="endingStats"></div>
+        <div class="ending-actions">
+          <button class="primary-button compact" id="replayButton" type="button">再过一次周三</button>
+          <button class="secondary-button" id="stayButton" type="button">留在组会室</button>
+        </div>
+      </div>
+    </dialog>
+
+    <script type="module" src="js/game.js"></script>
+  </body>
+</html>
